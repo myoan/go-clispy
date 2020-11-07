@@ -53,7 +53,10 @@ func main() {
 	program := useFileRead(os.Args[1])
 	fmt.Println(program)
 	fmt.Println("")
-	tokens := Tokenize(program)
+	tokens, err := Tokenize(program)
+	if err != nil {
+		panic("SyntaxError")
+	}
 	ast := Parse(tokens)
 	sm := NewStackMachine()
 	Eval(sm, ast)
