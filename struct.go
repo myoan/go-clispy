@@ -22,7 +22,13 @@ const (
 	Sub
 	Mul
 	Div
+	Lt
+	Lte
+	Gt
+	Gte
+	Eq
 	Num
+	If
 )
 
 func (n *Node) Text() string {
@@ -40,8 +46,22 @@ func (n *Node) Text() string {
 		result += "*"
 	case Div:
 		result += "/"
+	case Lt:
+		result += "<"
+	case Lte:
+		result += "<="
+	case Gt:
+		result += ">"
+	case Gte:
+		result += ">="
+	case Eq:
+		result += "=="
 	case Num:
 		result += strconv.Itoa(n.value)
+	case If:
+		result += "if"
+	default:
+		result += "hoge"
 	}
 	return result
 }
@@ -59,7 +79,7 @@ func Parse(tokens []*Token) *Node {
 		case Lparen:
 		case Rparen:
 			current = current.parent
-		case TypeSymbol:
+		case TypeOpr:
 			var node *Node
 			switch token.value {
 			case "add":
@@ -86,6 +106,44 @@ func Parse(tokens []*Token) *Node {
 					children: make([]*Node, 0),
 					value:    0,
 				}
+			case "lt":
+				node = &Node{
+					nodeType: Lt,
+					children: make([]*Node, 0),
+					value:    0,
+				}
+			case "lte":
+				node = &Node{
+					nodeType: Lte,
+					children: make([]*Node, 0),
+					value:    0,
+				}
+			case "gt":
+				node = &Node{
+					nodeType: Gt,
+					children: make([]*Node, 0),
+					value:    0,
+				}
+			case "gte":
+				node = &Node{
+					nodeType: Gte,
+					children: make([]*Node, 0),
+					value:    0,
+				}
+			case "eq":
+				node = &Node{
+					nodeType: Eq,
+					children: make([]*Node, 0),
+					value:    0,
+				}
+			}
+			current.addChild(node)
+			current = node
+		case TypeSymbol:
+			node := &Node{
+				nodeType: If,
+				children: make([]*Node, 0),
+				value:    0,
 			}
 			current.addChild(node)
 			current = node

@@ -22,7 +22,7 @@ func TestParse(t *testing.T) {
 		{
 			in: []*Token{
 				{tt: Lparen, value: ""},
-				{tt: TypeSymbol, value: "add"},
+				{tt: TypeOpr, value: "add"},
 				{tt: TypeInteger, value: "1"},
 				{tt: TypeInteger, value: "2"},
 				{tt: Rparen, value: ""},
@@ -33,7 +33,7 @@ func TestParse(t *testing.T) {
 		{
 			in: []*Token{
 				{tt: Lparen, value: ""},
-				{tt: TypeSymbol, value: "sub"},
+				{tt: TypeOpr, value: "sub"},
 				{tt: TypeInteger, value: "1"},
 				{tt: TypeInteger, value: "2"},
 				{tt: Rparen, value: ""},
@@ -44,7 +44,7 @@ func TestParse(t *testing.T) {
 		{
 			in: []*Token{
 				{tt: Lparen, value: ""},
-				{tt: TypeSymbol, value: "mul"},
+				{tt: TypeOpr, value: "mul"},
 				{tt: TypeInteger, value: "1"},
 				{tt: TypeInteger, value: "2"},
 				{tt: Rparen, value: ""},
@@ -55,7 +55,7 @@ func TestParse(t *testing.T) {
 		{
 			in: []*Token{
 				{tt: Lparen, value: ""},
-				{tt: TypeSymbol, value: "div"},
+				{tt: TypeOpr, value: "div"},
 				{tt: TypeInteger, value: "1"},
 				{tt: TypeInteger, value: "2"},
 				{tt: Rparen, value: ""},
@@ -66,9 +66,9 @@ func TestParse(t *testing.T) {
 		{
 			in: []*Token{
 				{tt: Lparen, value: ""},
-				{tt: TypeSymbol, value: "add"},
+				{tt: TypeOpr, value: "add"},
 				{tt: Lparen, value: ""},
-				{tt: TypeSymbol, value: "add"},
+				{tt: TypeOpr, value: "add"},
 				{tt: TypeInteger, value: "1"},
 				{tt: TypeInteger, value: "2"},
 				{tt: Rparen, value: ""},
@@ -81,14 +81,14 @@ func TestParse(t *testing.T) {
 		{
 			in: []*Token{
 				{tt: Lparen, value: ""},
-				{tt: TypeSymbol, value: "add"},
+				{tt: TypeOpr, value: "add"},
 				{tt: Lparen, value: ""},
-				{tt: TypeSymbol, value: "add"},
+				{tt: TypeOpr, value: "add"},
 				{tt: TypeInteger, value: "1"},
 				{tt: TypeInteger, value: "2"},
 				{tt: Rparen, value: ""},
 				{tt: Lparen, value: ""},
-				{tt: TypeSymbol, value: "sub"},
+				{tt: TypeOpr, value: "sub"},
 				{tt: TypeInteger, value: "3"},
 				{tt: TypeInteger, value: "4"},
 				{tt: Rparen, value: ""},
@@ -96,6 +96,22 @@ func TestParse(t *testing.T) {
 			},
 			msg:    "nested",
 			expect: "12+34-+",
+		},
+		{
+			in: []*Token{
+				{tt: Lparen, value: ""},
+				{tt: TypeSymbol, value: "if"},
+				{tt: Lparen, value: ""},
+				{tt: TypeOpr, value: "gt"},
+				{tt: TypeInteger, value: "1"},
+				{tt: TypeInteger, value: "2"},
+				{tt: Rparen, value: ""},
+				{tt: TypeInteger, value: "3"},
+				{tt: TypeInteger, value: "4"},
+				{tt: Rparen, value: ""},
+			},
+			msg:    "if stmt",
+			expect: "12>34if",
 		},
 	}
 
