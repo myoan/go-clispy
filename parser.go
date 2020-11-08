@@ -14,6 +14,33 @@ const (
 	Reserved    = "RES"
 )
 
+type TokenList struct {
+	idx    int
+	tokens []*Token
+	token  *Token
+}
+
+func NewTokenList() *TokenList {
+	return &TokenList{
+		idx:    0,
+		tokens: make([]*Token, 0),
+		token:  nil,
+	}
+}
+
+func (tl *TokenList) Push(t *Token) {
+	tl.tokens = append(tl.tokens, t)
+}
+
+func (tl *TokenList) Next() bool {
+	if len(tl.tokens) <= tl.idx {
+		return false
+	}
+	tl.token = tl.tokens[tl.idx]
+	tl.idx++
+	return true
+}
+
 type Token struct {
 	tt    TokenType
 	value string
@@ -80,48 +107,45 @@ func (s *Scanner) Char() string {
 	return string(s.ch)
 }
 
-func Tokenize(program string) ([]*Token, error) {
+func Tokenize(program string) (*TokenList, error) {
 	s := NewScanner(program)
-	b := []byte("abcdefghijklmnopqrstuvwxyz0123456789")
-	fmt.Printf("%v\n", b)
-	tokens := make([]*Token, 0)
+	tl := NewTokenList()
 	for s.EachChar() {
 		switch s.Char() {
 		case "(":
-			tokens = append(tokens, NewToken(Lparen, "("))
+			tl.Push(NewToken(Lparen, "("))
 		case ")":
-			tokens = append(tokens, NewToken(Rparen, ")"))
+			tl.Push(NewToken(Rparen, ")"))
 		case "+":
-			tokens = append(tokens, NewToken(TypeOpr, "add"))
+			tl.Push(NewToken(TypeOpr, "add"))
 		case "-":
-			tokens = append(tokens, NewToken(TypeOpr, "sub"))
+			tl.Push(NewToken(TypeOpr, "sub"))
 		case "*":
-			tokens = append(tokens, NewToken(TypeOpr, "mul"))
+			tl.Push(NewToken(TypeOpr, "mul"))
 		case "/":
-			tokens = append(tokens, NewToken(TypeOpr, "div"))
+			tl.Push(NewToken(TypeOpr, "div"))
 		case ">":
-			tokens = append(tokens, NewToken(TypeOpr, "gt"))
+			tl.Push(NewToken(TypeOpr, "gt"))
 		case ">=":
-			tokens = append(tokens, NewToken(TypeOpr, "gte"))
+			tl.Push(NewToken(TypeOpr, "gte"))
 		case "<":
-			tokens = append(tokens, NewToken(TypeOpr, "lt"))
+			tl.Push(NewToken(TypeOpr, "lt"))
 		case "<=":
-			tokens = append(tokens, NewToken(TypeOpr, "lte"))
+			tl.Push(NewToken(TypeOpr, "lte"))
 		case "==":
-			tokens = append(tokens, NewToken(TypeOpr, "eq"))
+			tl.Push(NewToken(TypeOpr, "eq"))
 		case "1", "2", "3", "4", "5", "6", "7", "8", "9", "0":
-			tokens = append(tokens, NewToken(TypeInteger, s.Char()))
+			tl.Push(NewToken(TypeInteger, s.Char()))
 		case "a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n",
 			"o", "p", "q", "r", "s", "t", "u", "v", "w", "x", "y", "z":
 			s.decr(1)
 			token := s.GetWord()
-			fmt.Printf("token: '%s'\n", token)
-			tokens = append(tokens, NewToken(TypeSymbol, token))
+			tl.Push(NewToken(TypeSymbol, token))
 		case " ":
 			break
 		default:
-			tokens = append(tokens, NewToken(None, s.Char()))
+			tl.Push(NewToken(None, s.Char()))
 		}
 	}
-	return tokens, nil
+	return tl, nil
 }

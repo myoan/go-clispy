@@ -113,13 +113,51 @@ func TestParse(t *testing.T) {
 			msg:    "if stmt",
 			expect: "12>34if",
 		},
+		/*
+			{
+				in: []*Token{
+					{tt: Lparen, value: ""},
+
+					{tt: Lparen, value: ""},
+					{tt: TypeSymbol, value: "defun"},
+					{tt: TypeSymbol, value: "incr"},
+
+					{tt: Lparen, value: ""},
+					{tt: TypeSymbol, value: "n"},
+					{tt: Rparen, value: ""},
+
+					{tt: Lparen, value: ""},
+					{tt: TypeOpr, value: "add"},
+					{tt: TypeSymbol, value: "n"},
+					{tt: TypeInteger, value: "1"},
+					{tt: Rparen, value: ""},
+
+					{tt: Rparen, value: ""},
+					{tt: Rparen, value: ""},
+
+					{tt: Lparen, value: ""},
+					{tt: TypeSymbol, value: "incr"},
+					{tt: Lparen, value: ""},
+					{tt: TypeInteger, value: "1"},
+					{tt: Rparen, value: ""},
+					{tt: Rparen, value: ""},
+				},
+				msg:    "defun stmt",
+				expect: "incrnn1+defun",
+			},
+		*/
 	}
 
 	for _, tt := range testcases {
-		actual := Parse(tt.in)
+		tl := NewTokenList()
+		for _, token := range tt.in {
+			tl.Push(token)
+		}
+		actual := Parse(tl)
 		fmt.Printf("%v\n", actual)
 		if actual.Text() != tt.expect {
 			t.Errorf("[%s] expect: %s, actual: %s\n", tt.msg, tt.expect, actual.Text())
+			actual.Show()
 		}
 	}
 }

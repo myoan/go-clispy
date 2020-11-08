@@ -1,8 +1,8 @@
 package main
 
 import (
-	"testing"
 	"strings"
+	"testing"
 )
 
 func TestScanner_EachChar(t *testing.T) {
@@ -100,31 +100,36 @@ func TestTokenize(t *testing.T) {
 		},
 		{
 			in:     "(+ 1 2)",
-			msg:    "empty",
+			msg:    "simple add",
 			expect: "( add 1 2 )",
 		},
 		{
 			in:     "(+ 1 (* 2 3))",
-			msg:    "empty",
+			msg:    "complex add",
 			expect: "( add 1 ( mul 2 3 ) )",
 		},
 		{
 			in:     "(> 1 2)",
-			msg:    "empty",
+			msg:    "compare",
 			expect: "( gt 1 2 )",
 		},
 		{
 			in:     "(if (> 0 3) 1 2)",
-			msg:    "empty",
+			msg:    "if stmt",
 			expect: "( if ( gt 0 3 ) 1 2 )",
+		},
+		{
+			in:     "(defun incr (n) (+ n 1)) (incr 2)",
+			msg:    "defun stmt",
+			expect: "( defun incr ( n ) ( add n 1 ) ) ( incr 2 )",
 		},
 	}
 
 	for _, tt := range testcases {
 		tokens, _ := Tokenize(tt.in)
 		vals := make([]string, 0)
-		for _, t := range tokens {
-			vals = append(vals, t.value)
+		for tokens.Next() {
+			vals = append(vals, tokens.token.value)
 		}
 		actual := strings.Join(vals, " ")
 		if actual != tt.expect {
