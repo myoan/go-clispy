@@ -58,6 +58,7 @@ func main() {
 		panic("SyntaxError")
 	}
 	ast := Parse(tokens)
+	ast.Show()
 	sm := NewStackMachine()
 	Eval(sm, ast)
 	fmt.Println(sm.Result())

@@ -1,7 +1,5 @@
 package main
 
-import "fmt"
-
 type TokenType string
 
 const (
@@ -39,6 +37,10 @@ func (tl *TokenList) Next() bool {
 	tl.token = tl.tokens[tl.idx]
 	tl.idx++
 	return true
+}
+
+func (tl *TokenList) LastToken() *Token {
+	return tl.tokens[len(tl.tokens)-1]
 }
 
 type Token struct {
@@ -94,7 +96,6 @@ func (s *Scanner) GetWord() string {
 			"n", "o", "p", "q", "r", "s", "t", "u", "v", "w", "x", "y", "z":
 			token += s.Char()
 		default:
-			fmt.Println(s.Char())
 			s.decr(1)
 			goto exit_loop
 		}
@@ -140,7 +141,11 @@ func Tokenize(program string) (*TokenList, error) {
 			"o", "p", "q", "r", "s", "t", "u", "v", "w", "x", "y", "z":
 			s.decr(1)
 			token := s.GetWord()
-			tl.Push(NewToken(TypeSymbol, token))
+			if tl.LastToken().tt == Lparen {
+				tl.Push(NewToken(TypeOpr, token))
+			} else {
+				tl.Push(NewToken(TypeSymbol, token))
+			}
 		case " ":
 			break
 		default:

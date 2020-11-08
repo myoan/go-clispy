@@ -119,6 +119,16 @@ func Eval(sm *StackMachine, node *Node) {
 		} else {
 			sm.Push(a)
 		}
+	case Func:
+		a := sm.Pop()
+		b := sm.Pop()
+		c := sm.Pop()
+		fmt.Printf("IF %d, %d, %d\n", c, b, a)
+		if c == 1 {
+			sm.Push(b)
+		} else {
+			sm.Push(a)
+		}
 	case Num:
 		fmt.Printf("PUSH %d\n", node.value)
 		sm.Push(node.value)

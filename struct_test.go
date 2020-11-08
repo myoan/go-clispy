@@ -5,6 +5,50 @@ import (
 	"testing"
 )
 
+/*
+func TestExpandFunction(t *testing.T) {
+	testcases := []struct {
+		in     []*Token
+		msg    string
+		expect string
+	}{
+		{
+			in: []*Token{
+				{tt: Lparen, value: ""},
+				{tt: TypeOpr, value: "incr"},
+				{tt: TypeInteger, value: "1"},
+				{tt: Rparen, value: ""},
+			},
+			msg:    "defun stmt",
+			expect: "incrnn1+defun",
+		},
+	}
+
+	mtd := []*Token {
+		{tt: Lparen, value: ""},
+		{tt: TypeOpr, value: "add"},
+		{tt: TypeSymbol, value: "n"},
+		{tt: TypeInteger, value: "1"},
+		{tt: Rparen, value: ""},
+	}
+
+	for _, tt := range testcases {
+		tl := NewTokenList()
+		for _, token := range tt.in {
+			tl.Push(token)
+		}
+		node := parse(tl)
+		ftable := make(map[string]*Function)
+		actual := ExpandFunction(node, ftable)
+		fmt.Printf("%v\n", actual)
+		if actual.Text() != tt.expect {
+			t.Errorf("[%s] expect: %s, actual: %s\n", tt.msg, tt.expect, actual.Text())
+			actual.Show()
+		}
+	}
+}
+*/
+
 func TestParse(t *testing.T) {
 	testcases := []struct {
 		in     []*Token
@@ -117,8 +161,6 @@ func TestParse(t *testing.T) {
 			{
 				in: []*Token{
 					{tt: Lparen, value: ""},
-
-					{tt: Lparen, value: ""},
 					{tt: TypeSymbol, value: "defun"},
 					{tt: TypeSymbol, value: "incr"},
 
@@ -136,10 +178,9 @@ func TestParse(t *testing.T) {
 					{tt: Rparen, value: ""},
 
 					{tt: Lparen, value: ""},
-					{tt: TypeSymbol, value: "incr"},
+					{tt: TypeOpr, value: "incr"},
 					{tt: Lparen, value: ""},
 					{tt: TypeInteger, value: "1"},
-					{tt: Rparen, value: ""},
 					{tt: Rparen, value: ""},
 				},
 				msg:    "defun stmt",
