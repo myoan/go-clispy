@@ -49,7 +49,7 @@ func TestExpandFunction(t *testing.T) {
 }
 */
 
-func TestParse(t *testing.T) {
+func TestParseAST(t *testing.T) {
 	testcases := []struct {
 		in     []*Token
 		msg    string
@@ -61,7 +61,7 @@ func TestParse(t *testing.T) {
 				{tt: Rparen, value: ""},
 			},
 			msg:    "empty",
-			expect: "",
+			expect: "[]",
 		},
 		{
 			in: []*Token{
@@ -72,7 +72,7 @@ func TestParse(t *testing.T) {
 				{tt: Rparen, value: ""},
 			},
 			msg:    "simple add",
-			expect: "12+",
+			expect: "[[+[1,2]]]",
 		},
 		{
 			in: []*Token{
@@ -83,7 +83,7 @@ func TestParse(t *testing.T) {
 				{tt: Rparen, value: ""},
 			},
 			msg:    "simple sub",
-			expect: "12-",
+			expect: "[[-[1,2]]]",
 		},
 		{
 			in: []*Token{
@@ -94,7 +94,7 @@ func TestParse(t *testing.T) {
 				{tt: Rparen, value: ""},
 			},
 			msg:    "simple mul",
-			expect: "12*",
+			expect: "[[*[1,2]]]",
 		},
 		{
 			in: []*Token{
@@ -105,7 +105,7 @@ func TestParse(t *testing.T) {
 				{tt: Rparen, value: ""},
 			},
 			msg:    "simple div",
-			expect: "12/",
+			expect: "[[/[1,2]]]",
 		},
 		{
 			in: []*Token{
@@ -120,7 +120,7 @@ func TestParse(t *testing.T) {
 				{tt: Rparen, value: ""},
 			},
 			msg:    "nested",
-			expect: "12+3+",
+			expect: "[[+[[+[1,2],3]]]]",
 		},
 		{
 			in: []*Token{
@@ -139,7 +139,7 @@ func TestParse(t *testing.T) {
 				{tt: Rparen, value: ""},
 			},
 			msg:    "nested",
-			expect: "12+34-+",
+			expect: "[[+[[+[1,2],[-[3,4]]]]]]",
 		},
 		{
 			in: []*Token{
@@ -155,38 +155,35 @@ func TestParse(t *testing.T) {
 				{tt: Rparen, value: ""},
 			},
 			msg:    "if stmt",
-			expect: "12>34if",
+			expect: "[[if[[>[1,2],3,4]]]]",
 		},
-		/*
-			{
-				in: []*Token{
-					{tt: Lparen, value: ""},
-					{tt: TypeSymbol, value: "defun"},
-					{tt: TypeSymbol, value: "incr"},
+		{
+			in: []*Token{
+				{tt: Lparen, value: ""},
+				{tt: TypeSymbol, value: "defun"},
+				{tt: TypeSymbol, value: "incr"},
 
-					{tt: Lparen, value: ""},
-					{tt: TypeSymbol, value: "n"},
-					{tt: Rparen, value: ""},
+				{tt: Lparen, value: ""},
+				{tt: TypeSymbol, value: "n"},
+				{tt: Rparen, value: ""},
 
-					{tt: Lparen, value: ""},
-					{tt: TypeOpr, value: "add"},
-					{tt: TypeSymbol, value: "n"},
-					{tt: TypeInteger, value: "1"},
-					{tt: Rparen, value: ""},
+				{tt: Lparen, value: ""},
+				{tt: TypeOpr, value: "add"},
+				{tt: TypeSymbol, value: "n"},
+				{tt: TypeInteger, value: "1"},
+				{tt: Rparen, value: ""},
 
-					{tt: Rparen, value: ""},
-					{tt: Rparen, value: ""},
+				{tt: Rparen, value: ""},
+				{tt: Rparen, value: ""},
 
-					{tt: Lparen, value: ""},
-					{tt: TypeOpr, value: "incr"},
-					{tt: Lparen, value: ""},
-					{tt: TypeInteger, value: "1"},
-					{tt: Rparen, value: ""},
-				},
-				msg:    "defun stmt",
-				expect: "incrnn1+defun",
+				{tt: Lparen, value: ""},
+				{tt: TypeOpr, value: "incr"},
+				{tt: TypeInteger, value: "1"},
+				{tt: Rparen, value: ""},
 			},
-		*/
+			msg:    "defun stmt",
+			expect: "[[defun[incr,n,[+[n,1]]]],[incr[1]]]",
+		},
 	}
 
 	for _, tt := range testcases {
@@ -194,7 +191,7 @@ func TestParse(t *testing.T) {
 		for _, token := range tt.in {
 			tl.Push(token)
 		}
-		actual := Parse(tl)
+		actual := CreateAST(tl)
 		fmt.Printf("%v\n", actual)
 		if actual.Text() != tt.expect {
 			t.Errorf("[%s] expect: %s, actual: %s\n", tt.msg, tt.expect, actual.Text())

@@ -35,9 +35,10 @@ func TestFunctionTable_Expand(t *testing.T) {
 	for _, token := range tokens {
 		tl.Push(token)
 	}
-	node := parse(tl)
+	node := CreateAST(tl)
 	ft.Expand(node.children[0])
-	if node.Text() != "11+" {
-		t.Errorf("expect: %s, actual: %s\n", "11+", node.Text())
+	expect := "[[+[1,1]]]"
+	if node.Text() != expect {
+		t.Errorf("expect: %s, actual: %s\n", expect, node.Text())
 	}
 }

@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"strconv"
+	"strings"
 )
 
 type Node struct {
@@ -61,7 +62,7 @@ func (n *Node) show(indent int) {
 	for range make([]int, indent) {
 		fmt.Print("  ")
 	}
-	fmt.Printf("%v\n", n)
+	fmt.Printf("(%s %d %s)\n", n.nodeType, n.value, n.vari)
 	for _, child := range n.children {
 		child.show(indent + 1)
 	}
@@ -69,9 +70,6 @@ func (n *Node) show(indent int) {
 
 func (n *Node) Text() string {
 	result := ""
-	for _, c := range n.children {
-		result += c.Text()
-	}
 	switch n.nodeType {
 	case Non:
 	case Add:
@@ -101,18 +99,27 @@ func (n *Node) Text() string {
 	default:
 		result += n.vari
 	}
+	if len(n.children) > 0 {
+		result += "["
+		children := make([]string, 0)
+		for _, c := range n.children {
+			children = append(children, c.Text())
+		}
+		result += strings.Join(children, ",")
+		result += "]"
+	}
 	return result
 }
 
 func Parse(tl *TokenList) *Node {
-	node := parse(tl)
+	node := CreateAST(tl)
 	ft := NewFunctionTable()
 	node.Show()
 	ft.ExpandAll(node)
 	return node
 }
 
-func parse(tl *TokenList) *Node {
+func CreateAST(tl *TokenList) *Node {
 	root := &Node{
 		nodeType: Non,
 		children: make([]*Node, 0),
