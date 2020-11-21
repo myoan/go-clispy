@@ -57,9 +57,12 @@ func main() {
 	if err != nil {
 		panic("SyntaxError")
 	}
-	ast := Parse(tokens)
+	ast, _ := Parse(tokens)
 	ast.Show()
-	sm := NewStackMachine()
-	Eval(sm, ast)
-	fmt.Println(sm.Result())
+	instSet := Compile(ast)
+	instSet.Show()
+	vm := NewVirtualMachine()
+	vm.Exec(instSet)
+	vm.Show()
+	fmt.Printf("result: %d\n", vm.Result())
 }

@@ -36,9 +36,9 @@ func (sm *StackMachine) Result() int {
 	return sm.stack[0]
 }
 
-func Eval(sm *StackMachine, node *Node) {
+func Eval(sm *StackMachine, node *Node, ft *FunctionTable) {
 	for _, n := range node.children {
-		Eval(sm, n)
+		Eval(sm, n, ft)
 	}
 	switch node.nodeType {
 	case Non:
@@ -46,27 +46,27 @@ func Eval(sm *StackMachine, node *Node) {
 	case Add:
 		a := sm.Pop()
 		b := sm.Pop()
-		fmt.Printf("ADD %d, %d\n", a, b)
+		fmt.Printf("ADD %d, %d\n", b, a)
 		sm.Push(b + a)
 	case Sub:
 		a := sm.Pop()
 		b := sm.Pop()
-		fmt.Printf("SUB %d, %d\n", a, b)
+		fmt.Printf("SUB %d, %d\n", b, a)
 		sm.Push(b - a)
 	case Mul:
 		a := sm.Pop()
 		b := sm.Pop()
-		fmt.Printf("MUL %d, %d\n", a, b)
+		fmt.Printf("MUL %d, %d\n", b, a)
 		sm.Push(b * a)
 	case Div:
 		a := sm.Pop()
 		b := sm.Pop()
-		fmt.Printf("DIV %d, %d\n", a, b)
+		fmt.Printf("DIV %d, %d\n", b, a)
 		sm.Push(a / b)
 	case Lt:
 		a := sm.Pop()
 		b := sm.Pop()
-		fmt.Printf("LT %d, %d\n", a, b)
+		fmt.Printf("LT %d, %d\n", b, a)
 		if b < a {
 			sm.Push(1)
 		} else {
@@ -75,7 +75,7 @@ func Eval(sm *StackMachine, node *Node) {
 	case Lte:
 		a := sm.Pop()
 		b := sm.Pop()
-		fmt.Printf("LTE %d, %d\n", a, b)
+		fmt.Printf("LTE %d, %d\n", b, a)
 		if b <= a {
 			sm.Push(1)
 		} else {
@@ -84,7 +84,7 @@ func Eval(sm *StackMachine, node *Node) {
 	case Gt:
 		a := sm.Pop()
 		b := sm.Pop()
-		fmt.Printf("GT %d, %d\n", a, b)
+		fmt.Printf("GT %d, %d\n", b, a)
 		if b > a {
 			sm.Push(1)
 		} else {
@@ -93,7 +93,7 @@ func Eval(sm *StackMachine, node *Node) {
 	case Gte:
 		a := sm.Pop()
 		b := sm.Pop()
-		fmt.Printf("GTE %d, %d\n", a, b)
+		fmt.Printf("GTE %d, %d\n", b, a)
 		sm.Push(a / b)
 		if b >= a {
 			sm.Push(1)
@@ -103,7 +103,7 @@ func Eval(sm *StackMachine, node *Node) {
 	case Eq:
 		a := sm.Pop()
 		b := sm.Pop()
-		fmt.Printf("EQ %d, %d\n", a, b)
+		fmt.Printf("EQ %d, %d\n", b, a)
 		if b == a {
 			sm.Push(1)
 		} else {
@@ -121,14 +121,8 @@ func Eval(sm *StackMachine, node *Node) {
 		}
 	case Func:
 		a := sm.Pop()
-		b := sm.Pop()
-		c := sm.Pop()
-		fmt.Printf("IF %d, %d, %d\n", c, b, a)
-		if c == 1 {
-			sm.Push(b)
-		} else {
-			sm.Push(a)
-		}
+		fmt.Printf("Func %s: %d\n", node.vari, a)
+		ft.Expand(node.parent)
 	case Num:
 		fmt.Printf("PUSH %d\n", node.value)
 		sm.Push(node.value)

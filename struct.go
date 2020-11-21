@@ -19,6 +19,27 @@ func (n *Node) addChild(node *Node) {
 	n.children = append(n.children, node)
 }
 
+func (n *Node) isOpr() bool {
+	if n.nodeType == Add ||
+		n.nodeType == Sub ||
+		n.nodeType == Mul ||
+		n.nodeType == Div ||
+		n.nodeType == Lt ||
+		n.nodeType == Lte ||
+		n.nodeType == Gt ||
+		n.nodeType == Gte ||
+		n.nodeType == Eq ||
+		n.nodeType == If ||
+		n.nodeType == Defun ||
+		n.nodeType == Var ||
+		n.nodeType == Func {
+		fmt.Printf("%s: true\n", n.nodeType)
+		return true
+	}
+	fmt.Printf("%s: false\n", n.nodeType)
+	return false
+}
+
 func (n *Node) delChild(node *Node) {
 	node.parent = nil
 	newChildren := make([]*Node, len(n.children)-1)
@@ -111,12 +132,11 @@ func (n *Node) Text() string {
 	return result
 }
 
-func Parse(tl *TokenList) *Node {
+func Parse(tl *TokenList) (*Node, *FunctionTable) {
 	node := CreateAST(tl)
 	ft := NewFunctionTable()
-	node.Show()
 	ft.ExpandAll(node)
-	return node
+	return node, ft
 }
 
 func CreateAST(tl *TokenList) *Node {
@@ -129,6 +149,7 @@ func CreateAST(tl *TokenList) *Node {
 	current := root
 	for tl.Next() {
 		token := tl.token
+		fmt.Printf("{tt: %s, value: \"%s\"},\n", token.tt, token.value)
 		switch token.tt {
 		case Lparen:
 			node := &Node{
@@ -140,10 +161,10 @@ func CreateAST(tl *TokenList) *Node {
 			current.addChild(node)
 			current = node
 		case Rparen:
-			current = current.parent
-			if current.nodeType == Defun || current.nodeType == TypeOpr {
+			if current.isOpr() {
 				current = current.parent
 			}
+			current = current.parent
 		case TypeOpr:
 			var node *Node
 			switch token.value {
@@ -248,6 +269,7 @@ func CreateAST(tl *TokenList) *Node {
 				current = node
 
 				tl.Next()
+				fmt.Printf("{tt: %s, value: \"%s\"},\n", tl.token.tt, tl.token.value)
 				nameNode := &Node{
 					nodeType: Var,
 					children: make([]*Node, 0),
@@ -257,7 +279,9 @@ func CreateAST(tl *TokenList) *Node {
 				current.addChild(nameNode)
 
 				tl.Next() // maybe (
+				fmt.Printf("{tt: %s, value: \"%s\"},\n", tl.token.tt, tl.token.value)
 				tl.Next()
+				fmt.Printf("{tt: %s, value: \"%s\"},\n", tl.token.tt, tl.token.value)
 				argsNode := &Node{
 					nodeType: Args,
 					children: make([]*Node, 0),
@@ -266,6 +290,7 @@ func CreateAST(tl *TokenList) *Node {
 				}
 				current.addChild(argsNode)
 				tl.Next() // maybe )
+				fmt.Printf("{tt: %s, value: \"%s\"},\n", tl.token.tt, tl.token.value)
 			default:
 				node = &Node{
 					nodeType: Func,
