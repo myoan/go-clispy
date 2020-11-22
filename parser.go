@@ -3,13 +3,21 @@ package main
 type TokenType string
 
 const (
-	None        = "NONE"
-	Lparen      = "LPRN"
-	Rparen      = "RPRN"
-	TypeInteger = "INT"
-	TypeOpr     = "OPR"
-	TypeSymbol  = "SYM"
-	Reserved    = "RES"
+	TokenTypeNone    = "NONE"
+	TokenTypeLParen  = "LPRN"
+	TokenTypeRParen  = "RPRN"
+	TokenTypeIdent   = "IDNT"
+	TokenTypeAdd     = "ADD"
+	TokenTypeSub     = "SUB"
+	TokenTypeMul     = "MUL"
+	TokenTypeDiv     = "DIV"
+	TokenTypeLt      = "LT"
+	TokenTypeLte     = "LTE"
+	TokenTypeGt      = "GT"
+	TokenTypeGte     = "GTE"
+	TokenTypeEq      = "EQ"
+	TokenTypeInt     = "INT"
+	TokenTypeKeyword = "KWD"
 )
 
 type TokenList struct {
@@ -108,48 +116,58 @@ func (s *Scanner) Char() string {
 	return string(s.ch)
 }
 
+func IsKeyword(t string) bool {
+	if t == "if" {
+		return true
+	} else if t == "defun" {
+		return true
+	}
+	return false
+}
+
 func Tokenize(program string) (*TokenList, error) {
 	s := NewScanner(program)
 	tl := NewTokenList()
 	for s.EachChar() {
 		switch s.Char() {
 		case "(":
-			tl.Push(NewToken(Lparen, "("))
+			tl.Push(NewToken(TokenTypeLParen, "("))
 		case ")":
-			tl.Push(NewToken(Rparen, ")"))
+			tl.Push(NewToken(TokenTypeRParen, ")"))
 		case "+":
-			tl.Push(NewToken(TypeOpr, "add"))
+			tl.Push(NewToken(TokenTypeAdd, "add"))
 		case "-":
-			tl.Push(NewToken(TypeOpr, "sub"))
+			tl.Push(NewToken(TokenTypeSub, "sub"))
 		case "*":
-			tl.Push(NewToken(TypeOpr, "mul"))
+			tl.Push(NewToken(TokenTypeMul, "mul"))
 		case "/":
-			tl.Push(NewToken(TypeOpr, "div"))
+			tl.Push(NewToken(TokenTypeDiv, "div"))
 		case ">":
-			tl.Push(NewToken(TypeOpr, "gt"))
+			tl.Push(NewToken(TokenTypeGt, "gt"))
 		case ">=":
-			tl.Push(NewToken(TypeOpr, "gte"))
+			tl.Push(NewToken(TokenTypeGte, "gte"))
 		case "<":
-			tl.Push(NewToken(TypeOpr, "lt"))
+			tl.Push(NewToken(TokenTypeLt, "lt"))
 		case "<=":
-			tl.Push(NewToken(TypeOpr, "lte"))
+			tl.Push(NewToken(TokenTypeLte, "lte"))
 		case "==":
-			tl.Push(NewToken(TypeOpr, "eq"))
+			tl.Push(NewToken(TokenTypeEq, "eq"))
 		case "1", "2", "3", "4", "5", "6", "7", "8", "9", "0":
-			tl.Push(NewToken(TypeInteger, s.Char()))
+			s.decr(1)
+			tl.Push(NewToken(TokenTypeInt, s.GetWord()))
 		case "a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n",
 			"o", "p", "q", "r", "s", "t", "u", "v", "w", "x", "y", "z":
 			s.decr(1)
 			token := s.GetWord()
-			if tl.LastToken().tt == Lparen {
-				tl.Push(NewToken(TypeOpr, token))
+			if IsKeyword(token) {
+				tl.Push(NewToken(TokenTypeKeyword, token))
 			} else {
-				tl.Push(NewToken(TypeSymbol, token))
+				tl.Push(NewToken(TokenTypeIdent, token))
 			}
 		case " ":
 			break
 		default:
-			tl.Push(NewToken(None, s.Char()))
+			tl.Push(NewToken(TokenTypeNone, s.Char()))
 		}
 	}
 	return tl, nil

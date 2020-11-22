@@ -1,7 +1,6 @@
 package main
 
 import (
-	"strings"
 	"testing"
 )
 
@@ -91,49 +90,138 @@ func TestTokenize(t *testing.T) {
 	testcases := []struct {
 		in     string
 		msg    string
-		expect string
+		expect *TokenList
 	}{
 		{
-			in:     "()",
-			msg:    "empty",
-			expect: "( )",
+			in:  "()",
+			msg: "empty",
+			expect: &TokenList{
+				idx:   0,
+				token: nil,
+				tokens: []*Token{
+					{tt: TokenTypeLParen, value: ""},
+					{tt: TokenTypeRParen, value: ""},
+				},
+			},
 		},
 		{
-			in:     "(+ 1 2)",
-			msg:    "simple add",
-			expect: "( add 1 2 )",
+			in:  "(+ 1 2)",
+			msg: "simple add",
+			expect: &TokenList{
+				idx:   0,
+				token: nil,
+				tokens: []*Token{
+					{tt: TokenTypeLParen, value: ""},
+					{tt: TokenTypeAdd, value: ""},
+					{tt: TokenTypeInt, value: "1"},
+					{tt: TokenTypeInt, value: "2"},
+					{tt: TokenTypeRParen, value: ""},
+				},
+			},
 		},
 		{
-			in:     "(+ 1 (* 2 3))",
-			msg:    "complex add",
-			expect: "( add 1 ( mul 2 3 ) )",
+			in:  "(+ 10 22)",
+			msg: "multi digit",
+			expect: &TokenList{
+				idx:   0,
+				token: nil,
+				tokens: []*Token{
+					{tt: TokenTypeLParen, value: ""},
+					{tt: TokenTypeAdd, value: ""},
+					{tt: TokenTypeInt, value: "10"},
+					{tt: TokenTypeInt, value: "22"},
+					{tt: TokenTypeRParen, value: ""},
+				},
+			},
 		},
 		{
-			in:     "(> 1 2)",
-			msg:    "compare",
-			expect: "( gt 1 2 )",
+			in:  "(+ 1 (* 2 3))",
+			msg: "complex add",
+			expect: &TokenList{
+				idx:   0,
+				token: nil,
+				tokens: []*Token{
+					{tt: TokenTypeLParen, value: ""},
+					{tt: TokenTypeAdd, value: ""},
+					{tt: TokenTypeInt, value: "1"},
+					{tt: TokenTypeLParen, value: ""},
+					{tt: TokenTypeMul, value: ""},
+					{tt: TokenTypeInt, value: "2"},
+					{tt: TokenTypeInt, value: "3"},
+					{tt: TokenTypeRParen, value: ""},
+					{tt: TokenTypeRParen, value: ""},
+				},
+			},
 		},
 		{
-			in:     "(if (> 0 3) 1 2)",
-			msg:    "if stmt",
-			expect: "( if ( gt 0 3 ) 1 2 )",
+			in:  "(> 1 2)",
+			msg: "compare",
+			expect: &TokenList{
+				idx:   0,
+				token: nil,
+				tokens: []*Token{
+					{tt: TokenTypeLParen, value: ""},
+					{tt: TokenTypeGt, value: ""},
+					{tt: TokenTypeInt, value: "1"},
+					{tt: TokenTypeInt, value: "2"},
+					{tt: TokenTypeRParen, value: ""},
+				},
+			},
 		},
 		{
-			in:     "(defun incr (n) (+ n 1)) (incr 2)",
-			msg:    "defun stmt",
-			expect: "( defun incr ( n ) ( add n 1 ) ) ( incr 2 )",
+			in:  "(if (> 0 3) 1 2)",
+			msg: "if stmt",
+			expect: &TokenList{
+				idx:   0,
+				token: nil,
+				tokens: []*Token{
+					{tt: TokenTypeLParen, value: ""},
+					{tt: TokenTypeKeyword, value: "if"},
+					{tt: TokenTypeLParen, value: ""},
+					{tt: TokenTypeGt, value: ""},
+					{tt: TokenTypeInt, value: "0"},
+					{tt: TokenTypeInt, value: "3"},
+					{tt: TokenTypeRParen, value: ""},
+					{tt: TokenTypeInt, value: "1"},
+					{tt: TokenTypeInt, value: "2"},
+					{tt: TokenTypeRParen, value: ""},
+				},
+			},
+		},
+		{
+			in:  "(defun incr (n) (+ n 1)) (incr 2)",
+			msg: "defun stmt",
+			expect: &TokenList{
+				idx:   0,
+				token: nil,
+				tokens: []*Token{
+					{tt: TokenTypeLParen, value: ""},
+					{tt: TokenTypeKeyword, value: "defun"},
+					{tt: TokenTypeIdent, value: "incr"},
+					{tt: TokenTypeLParen, value: ""},
+					{tt: TokenTypeIdent, value: "n"},
+					{tt: TokenTypeRParen, value: ""},
+					{tt: TokenTypeLParen, value: ""},
+					{tt: TokenTypeAdd, value: ""},
+					{tt: TokenTypeIdent, value: "n"},
+					{tt: TokenTypeInt, value: "1"},
+					{tt: TokenTypeRParen, value: ""},
+					{tt: TokenTypeRParen, value: ""},
+					{tt: TokenTypeLParen, value: ""},
+					{tt: TokenTypeIdent, value: "incr"},
+					{tt: TokenTypeInt, value: "2"},
+					{tt: TokenTypeRParen, value: ""},
+				},
+			},
 		},
 	}
 
 	for _, tt := range testcases {
-		tokens, _ := Tokenize(tt.in)
-		vals := make([]string, 0)
-		for tokens.Next() {
-			vals = append(vals, tokens.token.value)
-		}
-		actual := strings.Join(vals, " ")
-		if actual != tt.expect {
-			t.Errorf("[%s] expect: '%s', actual: '%s'\n", tt.msg, tt.expect, actual)
+		tl, _ := Tokenize(tt.in)
+		for i, actual := range tl.tokens {
+			if actual.tt != tt.expect.tokens[i].tt {
+				t.Errorf("[%s](%d) expect: '%s', actual: '%s'\n", tt.msg, i, tt.expect.tokens[i].tt, actual.tt)
+			}
 		}
 	}
 }

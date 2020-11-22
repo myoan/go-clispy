@@ -33,10 +33,8 @@ func (n *Node) isOpr() bool {
 		n.nodeType == Defun ||
 		n.nodeType == Var ||
 		n.nodeType == Func {
-		fmt.Printf("%s: true\n", n.nodeType)
 		return true
 	}
-	fmt.Printf("%s: false\n", n.nodeType)
 	return false
 }
 
@@ -132,11 +130,9 @@ func (n *Node) Text() string {
 	return result
 }
 
-func Parse(tl *TokenList) (*Node, *FunctionTable) {
+func Parse(tl *TokenList) (*Node, error) {
 	node := CreateAST(tl)
-	ft := NewFunctionTable()
-	ft.ExpandAll(node)
-	return node, ft
+	return node, nil
 }
 
 func CreateAST(tl *TokenList) *Node {
@@ -151,7 +147,7 @@ func CreateAST(tl *TokenList) *Node {
 		token := tl.token
 		fmt.Printf("{tt: %s, value: \"%s\"},\n", token.tt, token.value)
 		switch token.tt {
-		case Lparen:
+		case TokenTypeLParen:
 			node := &Node{
 				nodeType: Non,
 				children: make([]*Node, 0),
@@ -160,148 +156,93 @@ func CreateAST(tl *TokenList) *Node {
 			}
 			current.addChild(node)
 			current = node
-		case Rparen:
+		case TokenTypeRParen:
 			if current.isOpr() {
 				current = current.parent
 			}
 			current = current.parent
-		case TypeOpr:
-			var node *Node
-			switch token.value {
-			case "add":
-				node = &Node{
-					nodeType: Add,
-					children: make([]*Node, 0),
-					value:    0,
-					vari:     "+",
-				}
-				current.addChild(node)
-				current = node
-			case "sub":
-				node = &Node{
-					nodeType: Sub,
-					children: make([]*Node, 0),
-					value:    0,
-					vari:     "-",
-				}
-				current.addChild(node)
-				current = node
-			case "mul":
-				node = &Node{
-					nodeType: Mul,
-					children: make([]*Node, 0),
-					value:    0,
-					vari:     "*",
-				}
-				current.addChild(node)
-				current = node
-			case "div":
-				node = &Node{
-					nodeType: Div,
-					children: make([]*Node, 0),
-					value:    0,
-					vari:     "/",
-				}
-				current.addChild(node)
-				current = node
-			case "lt":
-				node = &Node{
-					nodeType: Lt,
-					children: make([]*Node, 0),
-					value:    0,
-					vari:     "<",
-				}
-				current.addChild(node)
-				current = node
-			case "lte":
-				node = &Node{
-					nodeType: Lte,
-					children: make([]*Node, 0),
-					value:    0,
-					vari:     "<=",
-				}
-				current.addChild(node)
-				current = node
-			case "gt":
-				node = &Node{
-					nodeType: Gt,
-					children: make([]*Node, 0),
-					value:    0,
-					vari:     ">",
-				}
-				current.addChild(node)
-				current = node
-			case "gte":
-				node = &Node{
-					nodeType: Gte,
-					children: make([]*Node, 0),
-					value:    0,
-					vari:     ">=",
-				}
-				current.addChild(node)
-				current = node
-			case "eq":
-				node = &Node{
-					nodeType: Eq,
-					children: make([]*Node, 0),
-					value:    0,
-					vari:     "==",
-				}
-				current.addChild(node)
-				current = node
-			case "if":
-				node = &Node{
-					nodeType: If,
-					children: make([]*Node, 0),
-					value:    0,
-					vari:     "IF",
-				}
-				current.addChild(node)
-				current = node
-			case "defun":
-				node = &Node{
-					nodeType: Defun,
-					children: make([]*Node, 0),
-					value:    0,
-					vari:     "DEFUN",
-				}
-				current.addChild(node)
-				current = node
-
-				tl.Next()
-				fmt.Printf("{tt: %s, value: \"%s\"},\n", tl.token.tt, tl.token.value)
-				nameNode := &Node{
-					nodeType: Var,
-					children: make([]*Node, 0),
-					value:    0,
-					vari:     tl.token.value,
-				}
-				current.addChild(nameNode)
-
-				tl.Next() // maybe (
-				fmt.Printf("{tt: %s, value: \"%s\"},\n", tl.token.tt, tl.token.value)
-				tl.Next()
-				fmt.Printf("{tt: %s, value: \"%s\"},\n", tl.token.tt, tl.token.value)
-				argsNode := &Node{
-					nodeType: Args,
-					children: make([]*Node, 0),
-					value:    0,
-					vari:     tl.token.value,
-				}
-				current.addChild(argsNode)
-				tl.Next() // maybe )
-				fmt.Printf("{tt: %s, value: \"%s\"},\n", tl.token.tt, tl.token.value)
-			default:
-				node = &Node{
-					nodeType: Func,
-					children: make([]*Node, 0),
-					value:    0,
-					vari:     tl.token.value,
-				}
-				current.addChild(node)
-				current = node
+		case TokenTypeAdd:
+			node := &Node{
+				nodeType: Add,
+				children: make([]*Node, 0),
+				value:    0,
+				vari:     "+",
 			}
-		case TypeSymbol:
+			current.addChild(node)
+			current = node
+		case TokenTypeSub:
+			node := &Node{
+				nodeType: Sub,
+				children: make([]*Node, 0),
+				value:    0,
+				vari:     "-",
+			}
+			current.addChild(node)
+			current = node
+		case TokenTypeMul:
+			node := &Node{
+				nodeType: Mul,
+				children: make([]*Node, 0),
+				value:    0,
+				vari:     "*",
+			}
+			current.addChild(node)
+			current = node
+		case TokenTypeDiv:
+			node := &Node{
+				nodeType: Div,
+				children: make([]*Node, 0),
+				value:    0,
+				vari:     "/",
+			}
+			current.addChild(node)
+			current = node
+		case TokenTypeLt:
+			node := &Node{
+				nodeType: Lt,
+				children: make([]*Node, 0),
+				value:    0,
+				vari:     "<",
+			}
+			current.addChild(node)
+			current = node
+		case TokenTypeLte:
+			node := &Node{
+				nodeType: Lte,
+				children: make([]*Node, 0),
+				value:    0,
+				vari:     "<=",
+			}
+			current.addChild(node)
+			current = node
+		case TokenTypeGt:
+			node := &Node{
+				nodeType: Gt,
+				children: make([]*Node, 0),
+				value:    0,
+				vari:     ">",
+			}
+			current.addChild(node)
+			current = node
+		case TokenTypeGte:
+			node := &Node{
+				nodeType: Gte,
+				children: make([]*Node, 0),
+				value:    0,
+				vari:     ">=",
+			}
+			current.addChild(node)
+			current = node
+		case TokenTypeEq:
+			node := &Node{
+				nodeType: Eq,
+				children: make([]*Node, 0),
+				value:    0,
+				vari:     "==",
+			}
+			current.addChild(node)
+			current = node
+		case TokenTypeKeyword:
 			var node *Node
 			switch token.value {
 			case "if":
@@ -351,13 +292,21 @@ func CreateAST(tl *TokenList) *Node {
 				}
 				current.addChild(node)
 			}
-		case TypeInteger:
+		case TokenTypeInt:
 			data, _ := strconv.Atoi(token.value)
 			node := &Node{
 				nodeType: Num,
 				children: make([]*Node, 0),
 				value:    data,
 				vari:     "",
+			}
+			current.addChild(node)
+		case TokenTypeIdent:
+			node := &Node{
+				nodeType: Var,
+				children: make([]*Node, 0),
+				value:    0,
+				vari:     token.value,
 			}
 			current.addChild(node)
 		}
