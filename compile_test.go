@@ -40,6 +40,114 @@ func ShowInstructionSet(is *InstructionSet) {
 	}
 }
 
+func IsSameStringArray(actual, expect []string) bool {
+	return true
+}
+
+func IsSameFunctionTable(actual, expect *NFunctionTable) bool {
+	if len(actual.tbl) != len(actual.funcs) {
+		return false
+	}
+	if len(actual.tbl) != len(expect.tbl) {
+		return false
+	}
+	if len(actual.funcs) != len(expect.funcs) {
+		return false
+	}
+
+	for i, fname := range actual.tbl {
+		if fname != expect.tbl[i] {
+			return false
+		}
+	}
+	return true
+}
+
+func TestFunctionTable_Marge(t *testing.T) {
+	testcase := []struct {
+		msg    string
+		src    *NFunctionTable
+		dst    *NFunctionTable
+		expect *NFunctionTable
+	}{
+		{
+			msg:    "empty",
+			src:    &NFunctionTable{},
+			dst:    &NFunctionTable{},
+			expect: &NFunctionTable{},
+		},
+		{
+			msg: "no change",
+			src: &NFunctionTable{
+				tbl:   []string{"hoge"},
+				funcs: []*NFunction{{insts: []*Instruction{}}},
+			},
+			dst: &NFunctionTable{
+				tbl:   []string{},
+				funcs: []*NFunction{},
+			},
+			expect: &NFunctionTable{
+				tbl:   []string{"hoge"},
+				funcs: []*NFunction{{insts: []*Instruction{}}},
+			},
+		},
+		{
+			msg: "simple add",
+			src: &NFunctionTable{
+				funcs: []*NFunction{},
+				tbl:   []string{},
+			},
+			dst: &NFunctionTable{
+				tbl:   []string{"hoge"},
+				funcs: []*NFunction{{insts: []*Instruction{}}},
+			},
+			expect: &NFunctionTable{
+				tbl:   []string{"hoge"},
+				funcs: []*NFunction{{insts: []*Instruction{}}},
+			},
+		},
+		{
+			msg: "add table",
+			src: &NFunctionTable{
+				tbl:   []string{"hoge"},
+				funcs: []*NFunction{{insts: []*Instruction{}}},
+			},
+			dst: &NFunctionTable{
+				tbl:   []string{"fuga"},
+				funcs: []*NFunction{{insts: []*Instruction{}}},
+			},
+			expect: &NFunctionTable{
+				tbl:   []string{"hoge", "fuga"},
+				funcs: []*NFunction{{insts: []*Instruction{}}, {insts: []*Instruction{}}},
+			},
+		},
+		{
+			msg: "store only uniq",
+			src: &NFunctionTable{
+				tbl:   []string{"hoge"},
+				funcs: []*NFunction{{insts: []*Instruction{}}},
+			},
+			dst: &NFunctionTable{
+				tbl:   []string{"hoge"},
+				funcs: []*NFunction{{insts: []*Instruction{}}},
+			},
+			expect: &NFunctionTable{
+				tbl:   []string{"hoge"},
+				funcs: []*NFunction{{insts: []*Instruction{}}},
+			},
+		},
+	}
+
+	for _, tt := range testcase {
+		err := tt.src.Merge(tt.dst)
+		if err != nil {
+			t.Errorf("[Error] actual is nil\n")
+		} else if !IsSameFunctionTable(tt.src, tt.expect) {
+			t.Errorf("[Error] %s\n", tt.msg)
+		}
+	}
+}
+
 func TestCompile(t *testing.T) {
 	testcase := []struct {
 		in     *Node
@@ -270,6 +378,92 @@ func TestCompile(t *testing.T) {
 				ft: nil,
 			},
 		},
+		/*
+			{
+				in: &Node{
+					nodeType: Non,
+					children: []*Node{
+						{
+							nodeType: Non,
+							vari:     "paren",
+							children: []*Node{
+								{
+									nodeType: Defun,
+									vari:     "DEFUN",
+									children: []*Node{
+										{
+											nodeType: Var,
+											vari:     "incr",
+											children: []*Node{},
+										},
+										{
+											nodeType: Args,
+											vari:     "n",
+											children: []*Node{},
+										},
+										{
+											nodeType: Non,
+											vari:     "paren",
+											children: []*Node{
+												{
+													nodeType: Add,
+													vari:     "+",
+													children: []*Node{
+														{
+															nodeType: Var,
+															vari:     "n",
+															children: []*Node{},
+														},
+														{
+															nodeType: Num,
+															vari:     "",
+															value:    1,
+															children: []*Node{},
+														},
+													},
+												},
+											},
+										},
+									},
+								},
+							},
+						},
+						{
+							nodeType: Non,
+							vari:     "paren",
+							children: []*Node{
+								{
+									nodeType: Var,
+									vari:     "incr",
+									children: []*Node{
+										{
+											nodeType: Num,
+											vari:     "",
+											value:    1,
+											children: []*Node{},
+										},
+									},
+								},
+							},
+						},
+					},
+				},
+				msg: "defun",
+				expect: &InstructionSet{
+					insts: []*Instruction{
+						{
+							iType:  InsPush,
+							value1: 1,
+						},
+						{
+							iType:  InsCall,
+							value1: 0,
+						},
+					},
+					ft: nil,
+				},
+			},
+		*/
 	}
 	for _, tt := range testcase {
 		actual := Compile(tt.in)

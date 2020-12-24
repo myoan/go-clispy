@@ -425,13 +425,14 @@ func TestCreateAST(t *testing.T) {
 							{
 								nodeType: Var,
 								vari:     "incr",
-								children: []*Node{},
-							},
-							{
-								nodeType: Num,
-								vari:     "",
-								value:    1,
-								children: []*Node{},
+								children: []*Node{
+									{
+										nodeType: Num,
+										vari:     "",
+										value:    1,
+										children: []*Node{},
+									},
+								},
 							},
 						},
 					},

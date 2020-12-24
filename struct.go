@@ -145,7 +145,7 @@ func CreateAST(tl *TokenList) *Node {
 	current := root
 	for tl.Next() {
 		token := tl.token
-		fmt.Printf("{tt: %s, value: \"%s\"},\n", token.tt, token.value)
+		// fmt.Printf("{tt: %s, value: \"%s\"},\n", token.tt, token.value)
 		switch token.tt {
 		case TokenTypeLParen:
 			node := &Node{
@@ -309,6 +309,9 @@ func CreateAST(tl *TokenList) *Node {
 				vari:     token.value,
 			}
 			current.addChild(node)
+			if current.nodeType == Non { // LParen
+				current = node
+			}
 		}
 	}
 	return root

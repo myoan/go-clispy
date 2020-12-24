@@ -2,24 +2,73 @@ package main
 
 import "fmt"
 
-type NFunctionTable struct {
-	fns map[string]*NFunction
-}
-
-type NFunction struct {
-	args  string
-	insts []*Instruction
-}
-
-func (t *NFunctionTable) Merge(ft *NFunctionTable) {
-	// for _, s, f := range ft.fns {
-	// 	t.fns[f.]
-	// }
-}
-
 type InstructionSet struct {
 	insts []*Instruction
 	ft    *NFunctionTable
+}
+
+func (is *InstructionSet) IsFunction(name string) bool {
+	fmt.Println("Function")
+	for _, fn := range is.ft.tbl {
+		fmt.Printf("function: %s\n", fn)
+		if fn == name {
+			fmt.Printf("function found: %s\n", name)
+			return true
+		}
+	}
+	return false
+}
+
+type NFunctionTable struct {
+	tbl   []string
+	funcs []*NFunction
+}
+
+func NewFunctionTable() *NFunctionTable {
+	return &NFunctionTable{
+		tbl:   make([]string, 0),
+		funcs: make([]*NFunction, 0),
+	}
+}
+
+type NFunction struct {
+	insts []*Instruction
+}
+
+func (src *NFunctionTable) Merge(dst *NFunctionTable) error {
+	fmt.Println("Merge")
+	exists := false
+	for i, fname := range dst.tbl {
+		for _, srcFuncName := range src.tbl {
+			if srcFuncName == fname {
+				exists = true
+			}
+		}
+		if !exists {
+			fmt.Printf("  merge %s\n", fname)
+			f := dst.funcs[i]
+			src.tbl = append(src.tbl, fname)
+			src.funcs = append(src.funcs, f)
+		}
+		exists = false
+	}
+	return nil
+}
+
+func (t *NFunctionTable) RegisterFunction(node *Node) {
+	name := node.children[0].vari
+	fnode := node.children[2]
+	// fnode.Show()
+	code := Compile(fnode)
+	// is.Merge(Compile(node))
+	// code.Show()
+	fmt.Printf("Register %s\n", name)
+	t.tbl = append(t.tbl, name)
+	t.funcs = append(t.funcs, &NFunction{insts: code.insts})
+}
+
+func (is *InstructionSet) GetFunc(idx int) *NFunction {
+	return is.ft.funcs[idx]
 }
 
 func (is *InstructionSet) Size() int {
@@ -63,7 +112,10 @@ const (
 	InsIf
 	InsJump
 	InsDefun
-	InsFunc
+	InsCall
+	InsVar
+	InsLabel
+	InsRet
 )
 
 type Instruction struct {
@@ -74,6 +126,11 @@ type Instruction struct {
 
 func Compile(ast *Node) *InstructionSet {
 	is := &InstructionSet{}
+	is.ft = NewFunctionTable()
+	if ast.nodeType == Defun {
+		is.ft.RegisterFunction(ast)
+		return is
+	}
 	for i, node := range ast.children {
 		is.Merge(Compile(node))
 		if ast.nodeType == If {
@@ -127,19 +184,25 @@ func Compile(ast *Node) *InstructionSet {
 		is.Add(&Instruction{
 			iType: InsEq,
 		})
-	case Defun:
-		is.Add(&Instruction{
-			iType: InsDefun,
-		})
-	case Func:
-		is.Add(&Instruction{
-			iType: InsFunc,
-		})
+	case Var:
+		if is.IsFunction(ast.vari) {
+			is.Add(&Instruction{
+				iType: InsCall,
+			})
+		} else {
+			fmt.Println("ELSE!!")
+			/*
+				is.Add(&Instruction{
+					iType: InsVar,
+				})
+			*/
+		}
 	case Num:
 		is.Add(&Instruction{
 			iType:  InsPush,
 			value1: ast.value,
 		})
 	}
+	fmt.Println(is.ft.tbl)
 	return is
 }

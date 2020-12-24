@@ -127,6 +127,37 @@ func TestVM_Exec(t *testing.T) {
 			msg:    "jump",
 			expect: 3,
 		},
+		{
+			in: &InstructionSet{
+				insts: []*Instruction{
+					{
+						iType:  InsPush,
+						value1: 1,
+					},
+					{
+						iType:  InsCall,
+						value1: 0,
+					},
+				},
+				ft: &NFunctionTable{
+					funcs: []*NFunction{
+						{
+							insts: []*Instruction{
+								{
+									iType:  InsPush,
+									value1: 1,
+								},
+								{
+									iType: InsAdd,
+								},
+							},
+						},
+					},
+				},
+			},
+			msg:    "call function",
+			expect: 2,
+		},
 	}
 	for _, tt := range testcase {
 		vm := NewVirtualMachine()
