@@ -139,8 +139,8 @@ func TestVM_Exec(t *testing.T) {
 						value1: 0,
 					},
 				},
-				ft: &NFunctionTable{
-					funcs: []*NFunction{
+				ft: &FunctionTable{
+					funcs: []*Function{
 						{
 							insts: []*Instruction{
 								{

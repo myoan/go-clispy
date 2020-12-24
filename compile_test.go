@@ -44,7 +44,7 @@ func IsSameStringArray(actual, expect []string) bool {
 	return true
 }
 
-func IsSameFunctionTable(actual, expect *NFunctionTable) bool {
+func IsSameFunctionTable(actual, expect *FunctionTable) bool {
 	if len(actual.tbl) != len(actual.funcs) {
 		return false
 	}
@@ -66,74 +66,74 @@ func IsSameFunctionTable(actual, expect *NFunctionTable) bool {
 func TestFunctionTable_Marge(t *testing.T) {
 	testcase := []struct {
 		msg    string
-		src    *NFunctionTable
-		dst    *NFunctionTable
-		expect *NFunctionTable
+		src    *FunctionTable
+		dst    *FunctionTable
+		expect *FunctionTable
 	}{
 		{
 			msg:    "empty",
-			src:    &NFunctionTable{},
-			dst:    &NFunctionTable{},
-			expect: &NFunctionTable{},
+			src:    &FunctionTable{},
+			dst:    &FunctionTable{},
+			expect: &FunctionTable{},
 		},
 		{
 			msg: "no change",
-			src: &NFunctionTable{
+			src: &FunctionTable{
 				tbl:   []string{"hoge"},
-				funcs: []*NFunction{{insts: []*Instruction{}}},
+				funcs: []*Function{{insts: []*Instruction{}}},
 			},
-			dst: &NFunctionTable{
+			dst: &FunctionTable{
 				tbl:   []string{},
-				funcs: []*NFunction{},
+				funcs: []*Function{},
 			},
-			expect: &NFunctionTable{
+			expect: &FunctionTable{
 				tbl:   []string{"hoge"},
-				funcs: []*NFunction{{insts: []*Instruction{}}},
+				funcs: []*Function{{insts: []*Instruction{}}},
 			},
 		},
 		{
 			msg: "simple add",
-			src: &NFunctionTable{
-				funcs: []*NFunction{},
+			src: &FunctionTable{
+				funcs: []*Function{},
 				tbl:   []string{},
 			},
-			dst: &NFunctionTable{
+			dst: &FunctionTable{
 				tbl:   []string{"hoge"},
-				funcs: []*NFunction{{insts: []*Instruction{}}},
+				funcs: []*Function{{insts: []*Instruction{}}},
 			},
-			expect: &NFunctionTable{
+			expect: &FunctionTable{
 				tbl:   []string{"hoge"},
-				funcs: []*NFunction{{insts: []*Instruction{}}},
+				funcs: []*Function{{insts: []*Instruction{}}},
 			},
 		},
 		{
 			msg: "add table",
-			src: &NFunctionTable{
+			src: &FunctionTable{
 				tbl:   []string{"hoge"},
-				funcs: []*NFunction{{insts: []*Instruction{}}},
+				funcs: []*Function{{insts: []*Instruction{}}},
 			},
-			dst: &NFunctionTable{
+			dst: &FunctionTable{
 				tbl:   []string{"fuga"},
-				funcs: []*NFunction{{insts: []*Instruction{}}},
+				funcs: []*Function{{insts: []*Instruction{}}},
 			},
-			expect: &NFunctionTable{
+			expect: &FunctionTable{
 				tbl:   []string{"hoge", "fuga"},
-				funcs: []*NFunction{{insts: []*Instruction{}}, {insts: []*Instruction{}}},
+				funcs: []*Function{{insts: []*Instruction{}}, {insts: []*Instruction{}}},
 			},
 		},
 		{
 			msg: "store only uniq",
-			src: &NFunctionTable{
+			src: &FunctionTable{
 				tbl:   []string{"hoge"},
-				funcs: []*NFunction{{insts: []*Instruction{}}},
+				funcs: []*Function{{insts: []*Instruction{}}},
 			},
-			dst: &NFunctionTable{
+			dst: &FunctionTable{
 				tbl:   []string{"hoge"},
-				funcs: []*NFunction{{insts: []*Instruction{}}},
+				funcs: []*Function{{insts: []*Instruction{}}},
 			},
-			expect: &NFunctionTable{
+			expect: &FunctionTable{
 				tbl:   []string{"hoge"},
-				funcs: []*NFunction{{insts: []*Instruction{}}},
+				funcs: []*Function{{insts: []*Instruction{}}},
 			},
 		},
 	}

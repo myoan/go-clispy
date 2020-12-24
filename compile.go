@@ -4,7 +4,7 @@ import "fmt"
 
 type InstructionSet struct {
 	insts []*Instruction
-	ft    *NFunctionTable
+	ft    *FunctionTable
 }
 
 func (is *InstructionSet) IsFunction(name string) bool {
@@ -19,23 +19,23 @@ func (is *InstructionSet) IsFunction(name string) bool {
 	return false
 }
 
-type NFunctionTable struct {
+type FunctionTable struct {
 	tbl   []string
-	funcs []*NFunction
+	funcs []*Function
 }
 
-func NewFunctionTable() *NFunctionTable {
-	return &NFunctionTable{
+func NewFunctionTable() *FunctionTable {
+	return &FunctionTable{
 		tbl:   make([]string, 0),
-		funcs: make([]*NFunction, 0),
+		funcs: make([]*Function, 0),
 	}
 }
 
-type NFunction struct {
+type Function struct {
 	insts []*Instruction
 }
 
-func (src *NFunctionTable) Merge(dst *NFunctionTable) error {
+func (src *FunctionTable) Merge(dst *FunctionTable) error {
 	fmt.Println("Merge")
 	exists := false
 	for i, fname := range dst.tbl {
@@ -55,7 +55,7 @@ func (src *NFunctionTable) Merge(dst *NFunctionTable) error {
 	return nil
 }
 
-func (t *NFunctionTable) RegisterFunction(node *Node) {
+func (t *FunctionTable) RegisterFunction(node *Node) {
 	name := node.children[0].vari
 	fnode := node.children[2]
 	// fnode.Show()
@@ -64,10 +64,10 @@ func (t *NFunctionTable) RegisterFunction(node *Node) {
 	// code.Show()
 	fmt.Printf("Register %s\n", name)
 	t.tbl = append(t.tbl, name)
-	t.funcs = append(t.funcs, &NFunction{insts: code.insts})
+	t.funcs = append(t.funcs, &Function{insts: code.insts})
 }
 
-func (is *InstructionSet) GetFunc(idx int) *NFunction {
+func (is *InstructionSet) GetFunc(idx int) *Function {
 	return is.ft.funcs[idx]
 }
 
