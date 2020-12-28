@@ -63,6 +63,71 @@ func IsSameFunctionTable(actual, expect *FunctionTable) bool {
 	return true
 }
 
+func IsSameNFunctionTable(actual, expect *NFunctionTable) bool {
+	if len(actual.table) != len(expect.table) {
+		return false
+	}
+
+	for i, f := range actual.table {
+		if f.name != expect.table[i].name {
+			return false
+		}
+	}
+	return true
+}
+
+func TestNFunctionTable_Add(t *testing.T) {
+	testcases := []struct {
+		msg    string
+		ft     *NFunctionTable
+		f      *NFunction
+		expect *NFunctionTable
+	}{
+		{
+			msg: "simple add",
+			ft: &NFunctionTable{
+				table: []*NFunction{},
+			},
+			f: &NFunction{
+				name:  "func",
+				insts: []*Instruction{},
+			},
+			expect: &NFunctionTable{
+				table: []*NFunction{{name: "func", insts: []*Instruction{}}},
+			},
+		},
+	}
+
+	for _, tt := range testcases {
+		err := tt.ft.Add(tt.f)
+		if err != nil {
+			t.Errorf("Error: %v\n", err)
+		}
+		if !IsSameNFunctionTable(tt.ft, tt.expect) {
+			t.Errorf("[Error] %s\n", tt.msg)
+		}
+	}
+}
+
+func TestNFunctionTable_Add_ErrorCase(t *testing.T) {
+	ft := &NFunctionTable{
+		table: []*NFunction{
+			{
+				name:  "func",
+				insts: []*Instruction{},
+			},
+		},
+	}
+	f := &NFunction{
+		name:  "func",
+		insts: []*Instruction{},
+	}
+	err := ft.Add(f)
+	if err == nil {
+		t.Errorf("[Error] duplicated function defined, but not error\n")
+	}
+}
+
 func TestFunctionTable_Marge(t *testing.T) {
 	testcase := []struct {
 		msg    string
