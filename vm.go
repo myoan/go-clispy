@@ -109,7 +109,7 @@ func (vm *VirtualMachine) Exec(is *InstructionSet) {
 		vm.Show()
 		switch inst.iType {
 		case InsPush:
-			fmt.Printf("push %d\n", inst.value1)
+			// fmt.Printf("push %d\n", inst.value1)
 			vm.Push(inst.value1)
 		case InsAdd:
 			b, err := vm.Pop()
@@ -120,27 +120,27 @@ func (vm *VirtualMachine) Exec(is *InstructionSet) {
 			if err != nil {
 				panic(err)
 			}
-			fmt.Printf("add %d, %d\n", a, b)
+			// fmt.Printf("add %d, %d\n", a, b)
 			vm.Push(a + b)
 		case InsSub:
 			b, _ := vm.Pop()
 			a, _ := vm.Pop()
-			fmt.Printf("sub %d, %d\n", a, b)
+			// fmt.Printf("sub %d, %d\n", a, b)
 			vm.Push(a - b)
 		case InsMul:
 			b, _ := vm.Pop()
 			a, _ := vm.Pop()
-			fmt.Printf("mul %d, %d\n", a, b)
+			// fmt.Printf("mul %d, %d\n", a, b)
 			vm.Push(a * b)
 		case InsDiv:
 			b, _ := vm.Pop()
 			a, _ := vm.Pop()
-			fmt.Printf("div %d, %d\n", a, b)
+			// fmt.Printf("div %d, %d\n", a, b)
 			vm.Push(a / b)
 		case InsLt:
 			b, _ := vm.Pop()
 			a, _ := vm.Pop()
-			fmt.Printf("lt  %d, %d\n", a, b)
+			// fmt.Printf("lt  %d, %d\n", a, b)
 			if a < b {
 				vm.Push(1)
 			} else {
@@ -149,7 +149,7 @@ func (vm *VirtualMachine) Exec(is *InstructionSet) {
 		case InsLte:
 			b, _ := vm.Pop()
 			a, _ := vm.Pop()
-			fmt.Printf("lte %d, %d\n", a, b)
+			// fmt.Printf("lte %d, %d\n", a, b)
 			if a <= b {
 				vm.Push(1)
 			} else {
@@ -158,7 +158,7 @@ func (vm *VirtualMachine) Exec(is *InstructionSet) {
 		case InsGt:
 			b, _ := vm.Pop()
 			a, _ := vm.Pop()
-			fmt.Printf("gt  %d, %d\n", a, b)
+			// fmt.Printf("gt  %d, %d\n", a, b)
 			if a > b {
 				vm.Push(1)
 			} else {
@@ -167,7 +167,7 @@ func (vm *VirtualMachine) Exec(is *InstructionSet) {
 		case InsGte:
 			b, _ := vm.Pop()
 			a, _ := vm.Pop()
-			fmt.Printf("gte %d, %d\n", a, b)
+			// fmt.Printf("gte %d, %d\n", a, b)
 			if a >= b {
 				vm.Push(1)
 			} else {
@@ -176,7 +176,7 @@ func (vm *VirtualMachine) Exec(is *InstructionSet) {
 		case InsEq:
 			b, _ := vm.Pop()
 			a, _ := vm.Pop()
-			fmt.Printf("eq  %d, %d\n", a, b)
+			// fmt.Printf("eq  %d, %d\n", a, b)
 			if a == b {
 				vm.Push(1)
 			} else {
@@ -184,21 +184,21 @@ func (vm *VirtualMachine) Exec(is *InstructionSet) {
 			}
 		case InsIf:
 			a, _ := vm.Pop()
-			fmt.Printf("if  %d, %d\n", a, inst.value1)
+			// fmt.Printf("if  %d, %d\n", a, inst.value1)
 			if a == 0 {
 				vm.CurrentFrame().pc = inst.value1
 			}
 		case InsCall:
-			fmt.Printf("call   %d\n", inst.value1)
+			// fmt.Printf("call   %d\n", inst.value1)
 			f := is.ft.funcs[inst.value1]
-			fmt.Printf("fn len: %d\n", len(is.ft.funcs))
-			for i, ins := range f.insts {
-				fmt.Printf("[%d] {type: %d, v1: %d, v2: %d}\n", i, ins.iType, ins.value1, ins.value2)
-			}
+			// fmt.Printf("fn len: %d\n", len(is.ft.funcs))
+			// for i, ins := range f.insts {
+			// 	fmt.Printf("[%d] {type: %d, v1: %d, v2: %d}\n", i, ins.iType, ins.value1, ins.value2)
+			// }
 			vm.PushFunction(f.insts)
 			continue
 		case InsJump:
-			fmt.Printf("jmp  %d\n", inst.value1)
+			// fmt.Printf("jmp  %d\n", inst.value1)
 			vm.CurrentFrame().pc = inst.value1
 		}
 		vm.IncrPC()

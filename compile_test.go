@@ -443,48 +443,46 @@ func TestCompile(t *testing.T) {
 				ft: nil,
 			},
 		},
-		/*
-			{
-				in: &Node{
-					nodeType: Non,
-					children: []*Node{
-						{
-							nodeType: Non,
-							vari:     "paren",
-							children: []*Node{
-								{
-									nodeType: Defun,
-									vari:     "DEFUN",
-									children: []*Node{
-										{
-											nodeType: Var,
-											vari:     "incr",
-											children: []*Node{},
-										},
-										{
-											nodeType: Args,
-											vari:     "n",
-											children: []*Node{},
-										},
-										{
-											nodeType: Non,
-											vari:     "paren",
-											children: []*Node{
-												{
-													nodeType: Add,
-													vari:     "+",
-													children: []*Node{
-														{
-															nodeType: Var,
-															vari:     "n",
-															children: []*Node{},
-														},
-														{
-															nodeType: Num,
-															vari:     "",
-															value:    1,
-															children: []*Node{},
-														},
+		{
+			in: &Node{
+				nodeType: Non,
+				children: []*Node{
+					{
+						nodeType: Non,
+						vari:     "paren",
+						children: []*Node{
+							{
+								nodeType: Defun,
+								vari:     "DEFUN",
+								children: []*Node{
+									{
+										nodeType: Var,
+										vari:     "incr",
+										children: []*Node{},
+									},
+									{
+										nodeType: Args,
+										vari:     "n",
+										children: []*Node{},
+									},
+									{
+										nodeType: Non,
+										vari:     "paren",
+										children: []*Node{
+											{
+												nodeType: Add,
+												vari:     "+",
+												children: []*Node{
+													{
+														nodeType: Var,
+														vari:     "n",
+														children: []*Node{},
+													},
+													{
+														nodeType: Num,
+														vari:     "",
+														value:    1,
+														children: []*Node{},
 													},
 												},
 											},
@@ -493,45 +491,45 @@ func TestCompile(t *testing.T) {
 								},
 							},
 						},
-						{
-							nodeType: Non,
-							vari:     "paren",
-							children: []*Node{
-								{
-									nodeType: Var,
-									vari:     "incr",
-									children: []*Node{
-										{
-											nodeType: Num,
-											vari:     "",
-											value:    1,
-											children: []*Node{},
-										},
+					},
+					{
+						nodeType: Non,
+						vari:     "paren",
+						children: []*Node{
+							{
+								nodeType: Var,
+								vari:     "incr",
+								children: []*Node{
+									{
+										nodeType: Num,
+										vari:     "",
+										value:    1,
+										children: []*Node{},
 									},
 								},
 							},
 						},
 					},
 				},
-				msg: "defun",
-				expect: &InstructionSet{
-					insts: []*Instruction{
-						{
-							iType:  InsPush,
-							value1: 1,
-						},
-						{
-							iType:  InsCall,
-							value1: 0,
-						},
-					},
-					ft: nil,
-				},
 			},
-		*/
+			msg: "defun",
+			expect: &InstructionSet{
+				insts: []*Instruction{
+					{
+						iType:  InsPush,
+						value1: 1,
+					},
+					{
+						iType:  InsCall,
+						value1: 0,
+					},
+				},
+				ft: nil,
+			},
+		},
 	}
 	for _, tt := range testcase {
-		actual := Compile(tt.in)
+		actual := Compile(tt.in, nil)
 		if actual == nil {
 			t.Errorf("[Error] actual is nil\n")
 		} else if !IsSameInstructionSet(actual, tt.expect) {

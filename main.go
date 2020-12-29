@@ -59,7 +59,7 @@ func main() {
 	}
 	ast, _ := Parse(tokens)
 	ast.Show()
-	instSet := Compile(ast)
+	instSet := Compile(ast, nil)
 	instSet.Show()
 	vm := NewVirtualMachine()
 	vm.Exec(instSet)

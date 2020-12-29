@@ -9,12 +9,16 @@ type InstructionSet struct {
 	ft    *FunctionTable
 }
 
-func (is *InstructionSet) IsFunction(name string) bool {
-	fmt.Println("Function")
+func (is *InstructionSet) funcs() {
+	fmt.Printf("func size: %d\n", len(is.ft.tbl))
 	for _, fn := range is.ft.tbl {
-		fmt.Printf("function: %s\n", fn)
+		fmt.Printf("func: %s\n", fn)
+	}
+}
+
+func (is *InstructionSet) IsFunction(name string) bool {
+	for _, fn := range is.ft.tbl {
 		if fn == name {
-			fmt.Printf("function found: %s\n", name)
 			return true
 		}
 	}
@@ -38,7 +42,6 @@ type Function struct {
 }
 
 func (src *FunctionTable) Merge(dst *FunctionTable) error {
-	fmt.Println("Merge")
 	exists := false
 	for i, fname := range dst.tbl {
 		for _, srcFuncName := range src.tbl {
@@ -47,7 +50,6 @@ func (src *FunctionTable) Merge(dst *FunctionTable) error {
 			}
 		}
 		if !exists {
-			fmt.Printf("  merge %s\n", fname)
 			f := dst.funcs[i]
 			src.tbl = append(src.tbl, fname)
 			src.funcs = append(src.funcs, f)
@@ -60,11 +62,7 @@ func (src *FunctionTable) Merge(dst *FunctionTable) error {
 func (t *FunctionTable) RegisterFunction(node *Node) {
 	name := node.children[0].vari
 	fnode := node.children[2]
-	// fnode.Show()
-	code := Compile(fnode)
-	// is.Merge(Compile(node))
-	// code.Show()
-	fmt.Printf("Register %s\n", name)
+	code := Compile(fnode, nil)
 	t.tbl = append(t.tbl, name)
 	t.funcs = append(t.funcs, &Function{insts: code.insts})
 }
@@ -126,15 +124,19 @@ type Instruction struct {
 	value2 int
 }
 
-func Compile(ast *Node) *InstructionSet {
+func Compile(ast *Node, ft *FunctionTable) *InstructionSet {
 	is := &InstructionSet{}
-	is.ft = NewFunctionTable()
+	if ft == nil {
+		is.ft = NewFunctionTable()
+	} else {
+		is.ft = ft
+	}
 	if ast.nodeType == Defun {
 		is.ft.RegisterFunction(ast)
 		return is
 	}
 	for i, node := range ast.children {
-		is.Merge(Compile(node))
+		is.Merge(Compile(node, is.ft))
 		if ast.nodeType == If {
 			if i == 0 {
 				is.Add(&Instruction{
@@ -151,48 +153,57 @@ func Compile(ast *Node) *InstructionSet {
 	}
 	switch ast.nodeType {
 	case Add:
+		fmt.Printf("Add\n")
 		is.Add(&Instruction{
 			iType: InsAdd,
 		})
 	case Sub:
+		fmt.Printf("Sub\n")
 		is.Add(&Instruction{
 			iType: InsSub,
 		})
 	case Mul:
+		fmt.Printf("Mul\n")
 		is.Add(&Instruction{
 			iType: InsMul,
 		})
 	case Div:
+		fmt.Printf("Div\n")
 		is.Add(&Instruction{
 			iType: InsDiv,
 		})
 	case Lt:
+		fmt.Printf("Lt\n")
 		is.Add(&Instruction{
 			iType: InsLt,
 		})
 	case Lte:
+		fmt.Printf("Lte\n")
 		is.Add(&Instruction{
 			iType: InsLte,
 		})
 	case Gt:
+		fmt.Printf("Gt\n")
 		is.Add(&Instruction{
 			iType: InsGt,
 		})
 	case Gte:
+		fmt.Printf("Gte\n")
 		is.Add(&Instruction{
 			iType: InsGte,
 		})
 	case Eq:
+		fmt.Printf("Eq\n")
 		is.Add(&Instruction{
 			iType: InsEq,
 		})
 	case Var:
+		fmt.Printf("Var: %s\n", ast.vari)
 		if is.IsFunction(ast.vari) {
 			is.Add(&Instruction{
 				iType: InsCall,
 			})
 		} else {
-			fmt.Println("ELSE!!")
 			/*
 				is.Add(&Instruction{
 					iType: InsVar,
@@ -200,11 +211,11 @@ func Compile(ast *Node) *InstructionSet {
 			*/
 		}
 	case Num:
+		fmt.Printf("Num %d\n", ast.value)
 		is.Add(&Instruction{
 			iType:  InsPush,
 			value1: ast.value,
 		})
 	}
-	fmt.Println(is.ft.tbl)
 	return is
 }
