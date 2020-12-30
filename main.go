@@ -51,18 +51,18 @@ func main() {
 		return
 	}
 	program := useFileRead(os.Args[1])
-	fmt.Println(program)
-	fmt.Println("")
+	// fmt.Println(program)
+	// fmt.Println("")
 	tokens, err := Tokenize(program)
 	if err != nil {
 		panic("SyntaxError")
 	}
 	ast, _ := Parse(tokens)
-	ast.Show()
-	instSet := Compile(ast, nil)
-	instSet.Show()
+	// ast.Show()
+	instSet := Compile(ast)
+	// instSet.Show()
 	vm := NewVirtualMachine()
 	vm.Exec(instSet)
-	vm.Show()
+	// vm.Show()
 	fmt.Printf("result: %d\n", vm.Result())
 }

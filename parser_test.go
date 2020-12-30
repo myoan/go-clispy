@@ -169,6 +169,21 @@ func TestTokenize(t *testing.T) {
 			},
 		},
 		{
+			in:  "(<= 1 2)",
+			msg: "compare lte",
+			expect: &TokenList{
+				idx:   0,
+				token: nil,
+				tokens: []*Token{
+					{tt: TokenTypeLParen, value: ""},
+					{tt: TokenTypeLte, value: ""},
+					{tt: TokenTypeInt, value: "1"},
+					{tt: TokenTypeInt, value: "2"},
+					{tt: TokenTypeRParen, value: ""},
+				},
+			},
+		},
+		{
 			in:  "(if (> 0 3) 1 2)",
 			msg: "if stmt",
 			expect: &TokenList{

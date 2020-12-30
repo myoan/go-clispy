@@ -522,6 +522,7 @@ func TestCompile(t *testing.T) {
 					{
 						iType:  InsCall,
 						value1: 0,
+						value2: 1,
 					},
 				},
 				ft: nil,
@@ -529,7 +530,7 @@ func TestCompile(t *testing.T) {
 		},
 	}
 	for _, tt := range testcase {
-		actual := Compile(tt.in, nil)
+		actual := Compile(tt.in)
 		if actual == nil {
 			t.Errorf("[Error] actual is nil\n")
 		} else if !IsSameInstructionSet(actual, tt.expect) {

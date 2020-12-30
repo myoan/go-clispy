@@ -146,8 +146,17 @@ func Tokenize(program string) (*TokenList, error) {
 			tl.Push(NewToken(TokenTypeGt, "gt"))
 		case ">=":
 			tl.Push(NewToken(TokenTypeGte, "gte"))
+		// case "<":
+		// 	s.decr(1)
+		// 	token := s.GetWord()
+		// 	fmt.Printf("token: %s\n", token)
+		// 	if token == "<" {
+		// 		tl.Push(NewToken(TokenTypeLt, "lt"))
+		// 	} else if token == "<=" {
+		// 		tl.Push(NewToken(TokenTypeLt, "lte"))
+		// 	}
 		case "<":
-			tl.Push(NewToken(TokenTypeLt, "lt"))
+			tl.Push(NewToken(TokenTypeLte, "lt"))
 		case "<=":
 			tl.Push(NewToken(TokenTypeLte, "lte"))
 		case "==":

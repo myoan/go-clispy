@@ -1,9 +1,9 @@
 (defun fib (n)
    (
       if
-      (<= n 1)
+      (< n 2)
        1
        (+ (fib (- n 1)) (fib (- n 2)))
    )
 )
-(fib 4)
+(fib 38)

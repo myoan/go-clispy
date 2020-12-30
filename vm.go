@@ -19,6 +19,7 @@ type VirtualMachine struct {
 
 type ControlFrame struct {
 	pc    int
+	arg   int
 	isset []*Instruction
 }
 
@@ -41,6 +42,7 @@ func (vm *VirtualMachine) CurrentFrame() *ControlFrame {
 func (vm *VirtualMachine) PushFunction(iss []*Instruction) {
 	frame := &ControlFrame{
 		pc:    0,
+		arg:   0,
 		isset: iss,
 	}
 	vm.cfp += 1
@@ -58,9 +60,11 @@ func (vm *VirtualMachine) PopFunction() {
 func (vm *VirtualMachine) Show() {
 	fmt.Println("--- start stack ---")
 	for i, s := range vm.stack {
-		fmt.Printf("[%d] %d\n", i, s)
+		fmt.Printf("[%d] %d", i, s)
 		if i == vm.sp-1 {
-			fmt.Println("- sp")
+			fmt.Println(" <- sp")
+		} else {
+			fmt.Println("")
 		}
 	}
 	fmt.Println("--- end stack ---")
@@ -83,7 +87,13 @@ func (vm *VirtualMachine) Pop() (int, error) {
 		return -1, ErrInvalidSP
 	}
 	ret := vm.stack[vm.sp-1]
-	vm.sp -= 1
+	vm.sp--
+	vm.stack = vm.stack[:len(vm.stack)-1]
+	// if vm.sp > 1 {
+	// 	vm.sp--
+	// } else {
+	// 	vm.sp = 1
+	// }
 	return ret, nil
 }
 
@@ -93,6 +103,11 @@ func (vm *VirtualMachine) IncrPC() {
 
 func (vm *VirtualMachine) IsFinish() bool {
 	if vm.CurrentFrame().pc >= len(vm.CurrentFrame().isset) {
+		if vm.cfp > 0 {
+			vm.PopFunction()
+			vm.IncrPC()
+			return false
+		}
 		return true
 	}
 	return false
@@ -102,11 +117,15 @@ func (vm *VirtualMachine) NextInstruction() *Instruction {
 	return vm.CurrentFrame().isset[vm.CurrentFrame().pc]
 }
 
+func (vm *VirtualMachine) AddArgs(val int) {
+	vm.CurrentFrame().arg = val
+}
+
 func (vm *VirtualMachine) Exec(is *InstructionSet) {
 	vm.frame = append(vm.frame, &ControlFrame{pc: 0, isset: is.insts})
 	for !vm.IsFinish() {
 		inst := vm.NextInstruction()
-		vm.Show()
+		// vm.Show()
 		switch inst.iType {
 		case InsPush:
 			// fmt.Printf("push %d\n", inst.value1)
@@ -189,14 +208,21 @@ func (vm *VirtualMachine) Exec(is *InstructionSet) {
 				vm.CurrentFrame().pc = inst.value1
 			}
 		case InsCall:
-			// fmt.Printf("call   %d\n", inst.value1)
+			// fmt.Printf("call %d(%d)\n", inst.value1, inst.value2)
 			f := is.ft.funcs[inst.value1]
 			// fmt.Printf("fn len: %d\n", len(is.ft.funcs))
 			// for i, ins := range f.insts {
 			// 	fmt.Printf("[%d] {type: %d, v1: %d, v2: %d}\n", i, ins.iType, ins.value1, ins.value2)
 			// }
 			vm.PushFunction(f.insts)
+			for i := 0; i < inst.value2; i++ {
+				arg, _ := vm.Pop()
+				vm.AddArgs(arg)
+			}
 			continue
+		case InsVar:
+			// fmt.Println("var")
+			vm.Push(vm.CurrentFrame().arg)
 		case InsJump:
 			// fmt.Printf("jmp  %d\n", inst.value1)
 			vm.CurrentFrame().pc = inst.value1
